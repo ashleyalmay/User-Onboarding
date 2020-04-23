@@ -84,7 +84,7 @@ const submitForm = event => {
 <div className="note-list">           
 <form onSubmit={submitForm}>
 
-    <label htmlFor="name">Name: {error.name.length > 0 ? <p className="error">{error.name}</p> : null} </label>
+    <label htmlFor="name">Name: {error.name.length > 3 ? <p className="error">{error.name}</p> : null} </label>
         <input 
             id="name" 
             type="text" 
