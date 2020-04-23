@@ -12,7 +12,7 @@ const formSchema = yup.object().shape({
 });
 
 const Form = props => {
-const [disable, setDisable] = useState(true);  
+// const [disable, setDisable] = useState(false);  
 const [box, setBox] = useState({
     name: '',
     Password: '',
@@ -24,18 +24,18 @@ const[error, setError] = useState({
     name: '',
     Password: '',
     Email: '',
-    Terms: ''
+    Terms: '',
 
 });
 
 const [post, setPost] = useState([])
 
-useEffect(() => {
-   formSchema.isValid(box)
-   .then(pressed => {
-       setDisable(!pressed);
-})
-},[box])
+// useEffect(() => {
+//    formSchema.isValid(box)
+//    .then(pressed => {
+//        setDisable(!pressed);
+// })
+// },[box])
 
 const validateChange = event => {
     yup.reach(formSchema, event.target.Name)
@@ -84,7 +84,7 @@ const submitForm = event => {
 <div className="note-list">           
 <form onSubmit={submitForm}>
 
-    <label htmlFor="name">Name:{error.name.length > 0 ? <p className="error">{error.name}</p> : null} </label>
+    <label htmlFor="name">Name: {error.name.length > 0 ? <p className="error">{error.name}</p> : null} </label>
         <input 
             id="name" 
             type="text" 
@@ -93,7 +93,7 @@ const submitForm = event => {
             placeholder="Name"
             value={Form.Name} required/>
              
-    <label htmlFor="Password">Password:{error.Password.length > 0 ? (<p className="error">{error.Password}</p>) : null} </label>
+    <label htmlFor="Password">Password: {error.Password.length > 0 ? (<p className="error">{error.Password}</p>) : null} </label>
         <input id="Password" 
             type="password" 
             name="Password" 
@@ -101,7 +101,7 @@ const submitForm = event => {
             placeholder="Password"
             value={box.Password} required/>
        
-    <label htmlFor="Email">Email:{error.Email.length > 0 ? (
+    <label htmlFor="Email">Email: {error.Email.length > 0 ? (
     <p className="error">{error.Email}</p>) : null}</label>
         <input id="Email" 
             type="text" 
@@ -118,8 +118,9 @@ const submitForm = event => {
         checked={box.Terms} />
         Terms & Conditions
         </label>
-        <pre>{JSON.stringify(post, null, 2)}</pre>
-        <button disabled={disable} type="submit">Submit</button>
+
+         <pre>{JSON.stringify(post, null, 2)}</pre> 
+        <button type="submit">Submit</button>
 
     </form>
             {props.notes.map(note =>(
