@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from "react";
 import * as yup from "yup";
+import axios from "axios";
+
 
 
 const formSchema = yup.object().shape({
@@ -10,6 +12,7 @@ const formSchema = yup.object().shape({
 });
 
 const Form = props => {
+const [disable, setDisable] = useState(true);  
 const [box, setBox] = useState({
     name: '',
     Password: '',
@@ -24,73 +27,89 @@ const[error, setError] = useState({
     Terms: ''
 
 });
-const [buttonDisabled, setButtonDisabled] = useState (true);
 
-useEffect(() =>{
-formSchema.isValid(box).then(valid => {
-    setButtonDisabled(!valid)
+const [post, setPost] = useState([])
+
+useEffect(() => {
+   formSchema.isValid(box)
+   .then(pressed => {
+       setDisable(!pressed);
 })
-},[box]);
+},[box])
 
 const validateChange = event => {
     yup.reach(formSchema, event.target.Name)
     .validate(event.target.valid)
-    .then(valid => {
+    .then(pressed => {
         setError({
             ...error,[event.target.Name] : ""
         });
-    });
+    })
+    .catch(err => {
+        setError({
+            ...err, [event.target.Name] : err.error[0]
+        });
+    })
 };
-
-
-
 
 const inputChange = event =>{
-    // setBox({ ...box, [event.target.name]: event.target.value});
     event.persist();
-    const newFormData = {
-        ...box, [event.target.name] : event.target.type === "checkbox" ? event.target.checked : event.target.value
-    };
-    validateChange(event);
+        const newFormData = {
+            ...box, [event.target.name] : 
+            event.target.type === "checkbox" ? event.target.checked : event.target.value
+        };
     setBox(newFormData);
+    // validateChange(event);
 };
 const submitForm = event => {
-    event.preventDefault();
-    props.addNewNote(box);
-    setBox({ Name: '',Password: '',Email: ''});
+        event.preventDefault();
+        axios
+              .post("https://reqres.in/api/users", box)
+              .then(res => {
+                setPost(res.data); 
+                console.log("success", post);
+            
+                setBox({
+                  name: "",
+                  email: "",
+                  terms: "",
+                  password: "",
+                });
+              })
+              .catch(err => console.log(err.response));
+    
 }
-
 
     return( 
 <div className="note-list">           
 <form onSubmit={submitForm}>
-    <label htmlFor="name">Name: </label>
+
+    <label htmlFor="name">Name:{error.name.length > 0 ? <p className="error">{error.name}</p> : null} </label>
         <input 
             id="name" 
             type="text" 
             name="name" 
             onChange={inputChange}
             placeholder="Name"
-            value={box.Name}
-        />
-             {error.name.length > 0 ? <p className="note-list">{error.name}</p> : null}
-    <label htmlFor="Password">Password: </label>
+            value={Form.Name} required/>
+             
+    <label htmlFor="Password">Password:{error.Password.length > 0 ? (<p className="error">{error.Password}</p>) : null} </label>
         <input id="Password" 
             type="password" 
             name="Password" 
             onChange={inputChange}
             placeholder="Password"
-            value={box.Password}
-        />
-
-    <label htmlFor="Email">Email: </label>
+            value={box.Password} required/>
+       
+    <label htmlFor="Email">Email:{error.Email.length > 0 ? (
+    <p className="error">{error.Email}</p>) : null}</label>
         <input id="Email" 
             type="text" 
             name="Email" 
             onChange={inputChange}
             placeholder="Email"
-            value={box.Email}
-        />
+            value={box.Email} required/>
+        
     <label htmlFor="Terms" className="terms">    
         <input
         type = "checkbox"
@@ -99,7 +118,8 @@ const submitForm = event => {
         checked={box.Terms} />
         Terms & Conditions
         </label>
-        <button disabled={buttonDisabled}>Submit</button>
+        <pre>{JSON.stringify(post, null, 2)}</pre>
+        <button disabled={disable} type="submit">Submit</button>
 
     </form>
             {props.notes.map(note =>(
